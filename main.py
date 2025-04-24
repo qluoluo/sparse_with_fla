@@ -334,7 +334,7 @@ if __name__ == "__main__":
         fla_q = self.feature_map_q(fla_q)
         fla_k = self.feature_map_k(fla_k)
 
-        if self.norm_q:
+        if self.norm_q:     # FIXME: 如果效果不好，记得尝试normalize
             fla_q = fla_q / (fla_q.sum(-1, True) + 1e-4)
         if self.norm_k:
             fla_k = fla_k / (fla_k.sum(-1, True) + 1e-4)
@@ -342,6 +342,7 @@ if __name__ == "__main__":
         assert mode == 'fused_chunk', 'Only fused_chunk is supported'
         from fla.ops.linear_attn import chunk_linear_attn, fused_chunk_linear_attn, fused_recurrent_linear_attn
 
+        # FIXME: past_key_values
         o, final_state_up = fused_chunk_linear_attn(
             q=fla_q,
             k=fla_k,
@@ -356,7 +357,7 @@ if __name__ == "__main__":
             q=fla_q,
             k=fla_k,
             # v=torch.ones((v.shape[0], v.shape[1], v.shape[2], 1)).to(q.device).to(q.dtype),
-            v=torch.ones_like(fla_v).to(q.device).to(q.dtype),
+            v=torch.ones_like(fla_v).to(fla_q.device).to(fla_q.dtype),
             normalize=self.do_feature_map_norm,
             initial_state=final_state_down,
             output_final_state=True,
